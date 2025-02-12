@@ -7,7 +7,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: clip;
+    overflow: auto; /*REPLACE WITH 'CLIP' */
 }
 
 .customization-confirm {
@@ -16,12 +16,14 @@ body {
 
 .title-screen {
     text-align: center;
+
 }
 
 .game-title {
     font-size: 4rem;
     color: #6262ff;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    text-shadow: 0px 8px 15px rgba(21, 16, 31, 0.479);
+    animation: bounce 5s infinite;
 }
 
 .button-container {
@@ -150,6 +152,11 @@ body {
     margin-bottom: 1em;
 }
 
+#home-button2 {
+    text-align: center;
+    margin-left: 2.8em;
+}
+
 #choices-container {
     display: none;
     text-align: center;
@@ -174,6 +181,7 @@ body {
 
 .choice-button:hover {
     transform: scale(1.1);
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
 }
 
 .game-button {
@@ -187,18 +195,31 @@ body {
     border-radius: 30px;
     cursor: pointer;
     transition: all 0.3s ease;
-    width: 100%;
+    width: auto;
     max-width: 200px;
     height: auto;
-    max-height: 50px;
+    max-height: 200px;
 }
 
 .game-button:hover {
     background-color: #ff629f;
     transform: scale(1.1);
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
 }
 
 .game-button:active {
     background-color:  #4b4bff;
     transform: scale(0.95);
+}
+
+@keyframes bounce {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+    100% {
+        transform: translateY(0);
+    }
 }
