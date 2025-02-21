@@ -85,37 +85,39 @@ updateCharacterDisplay(); // Initialize display
 //       STORY STARTS         /////////////////////////////////////////////////////////////
 // ========================== //
 
-$("#confirm").click(async function() {
+$("#confirm").click(async function () {
     $(".customization-confirm").hide();
     $(".chapter1").show();
-    $('body').css('background', 'black');
+    $("body").css("background", "black");
 
-    clearScreen();
-    typeText(storyEpilogue, async function() {
-        showChoices(storyChoices);
+    clearScreen(); 
+    await typeText(storyEpilogue);  // Wait for the text to fully display first
 
-        await waitForKeyPress();
-        await waitForKeyPress();
-        $('#typewriter-test').hide();
-        
+    await waitForKeyPress();  // Wait for player input before showing choices
+    showChoices(storyChoices, async function () {
 
-        $('body').css('background', 'white');
-        $("body").append('<img id="fade-image" src="images/hallway daytime.jpeg" style="display:none; position:fixed; width:100vw; height:100vh; top:0; left:0; z-index:-1;">');
+
+        await waitForKeyPress(); // Another press before scene transition
+        clearScreen();
+        $("body").css("background", "white");
+        $("body").append(
+            '<img id="fade-image" src="images/hallway daytime.jpeg" style="display:none; position:fixed; width:100vw; height:100vh; top:0; left:0; z-index:-1;">'
+        );
         $("#fade-image").fadeIn(2000);
     });
 });
 
+
 // ========================== //
 //      WAIT FOR KEYPRESS     //
 // ========================== //
-function waitForKeyPress() {
-    return new Promise(resolve => {
-        function keyHandler(event) {$("#confirm").click(async function() {
-    typeText(storyEpilogue, async function() {
-        showChoices(storyChoices);
-    });
-});
-
+//function waitForKeyPress() {
+  //  return new Promise(resolve => {
+    //    function keyHandler(event) {$("#confirm").click(async function() {
+  //  typeText(storyEpilogue, async function() {
+  //      showChoices(storyChoices);
+    //});
+//});
 // ========================== //
 //      TYPEWRITER EFFECT     //
 // ========================== //
@@ -139,123 +141,66 @@ function waitForKeyPress() {
     });
 }
 
-function clearScreen() {
-    $('#typewriter-test').empty();
-    $('#choices-container').empty().hide();
+async function typeText(textArray) {
+    for (let i = 0; i < textArray.length; i++) {
+        $("#typewriter-test").empty();  // Clear previous text
+        await typeSentence(textArray[i]); // Type one sentence at a time
+        await waitForKeyPress();  // Wait for player input before typing the next one
+    }
 }
 
-function typeText(textArray, callback = null) {
-    let currentIndex = 0;
-    let charIndex = 0;
-    let isTyping = false;
-    let interval;
-
-    function showNextChar() {
-        if (charIndex < textArray[currentIndex].length) {
-            $('#typewriter-test').append(textArray[currentIndex].charAt(charIndex));
-            charIndex++;
-        } else {
-            clearInterval(interval);
-            isTyping = false;
-        }
-    }
-
-    function nextText() {
-        if (interval) clearInterval(interval);
-        currentIndex++;
-        if (currentIndex < textArray.length) {
-            clearScreen();
-            charIndex = 0;
-            isTyping = true;
-            interval = setInterval(showNextChar, 35);
-        } else if (callback) {
-            callback();
-        }
-    }
-
-    $(document).off('keydown click').on('keydown click', function(e) {
-        if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
-            nextText();
-        }
-    });
-
-    isTyping = true;
-    interval = setInterval(showNextChar, 35);
-}
-            if (event.key === "Enter" || event.key === " ") {
-                document.removeEventListener("keydown", keyHandler);
-                document.removeEventListener("click", clickHandler);
-                resolve(); // Resolves the promise, allowing execution to continue
+// Helper function to type one sentence letter by letter
+function typeSentence(sentence) {
+    return new Promise((resolve) => {
+        let i = 0;
+        let interval = setInterval(() => {
+            if (i < sentence.length) {
+                $("#typewriter-test").append(sentence.charAt(i));
+                i++;
+            } else {
+                clearInterval(interval);
+                resolve(); // Resolve the promise when done typing
             }
-        }
-        function clickHandler() {
-            document.removeEventListener("keydown", keyHandler);
-            document.removeEventListener("click", clickHandler);
-            resolve(); // Resolves the promise on click
-        }
-
-        document.addEventListener("keydown", keyHandler);
-        document.addEventListener("click", clickHandler);
+        }, 35);
     });
 }
 
 function clearScreen() {
     $('#typewriter-test').empty();
     $('#choices-container').empty().hide();
-}
-
-function typeText(textArray, callback = null) {
-    let currentIndex = 0;
-    let charIndex = 0;
-    let isTyping = false;
-    let interval;
-
-    function showNextChar() {
-        if (charIndex < textArray[currentIndex].length) {
-            $('#typewriter-test').append(textArray[currentIndex].charAt(charIndex));
-            charIndex++;
-        } else {
-            clearInterval(interval);
-            isTyping = false;
-        }
-    }
-
-    function nextText() {
-        currentIndex++;
-        if (currentIndex < textArray.length) {
-            clearScreen();
-            charIndex = 0;
-            isTyping = true;
-            interval = setInterval(showNextChar, 35);
-        } else if (callback) {
-            callback();
-        }
-    }
-
-    $(document).off('keydown click').on('keydown click', function(e) {
-        if ((e.type === 'click' || e.key === 'Enter' || e.key === ' ') && !isTyping) {
-            nextText();
-        }
-    });
-
-    isTyping = true;
-    interval = setInterval(showNextChar, 35);
 }
 
 // ========================== //
 //        CHOICES HANDLER     //
 // ========================== //
 
-function showChoices(choices) {
-    $('#choices-container').empty().show();
-    choices.forEach(choice => {
-        let button = $('<button>').text(choice.text).addClass('choice-button');
-        button.click(() => {
-            $('#choices-container').hide();
-            clearScreen(); // Don't show the choice, just clear the screen
-            typeText([choice.response]);
+function showChoices(choices, callback = null) {
+    $("#choices-container").empty().show(); // Make sure choices are visible
+
+    choices.forEach((choice) => {
+        let button = $("<button>")
+            .text(choice.text)
+            .addClass("choice-button");
+
+        button.click(async () => {
+            $("#choices-container").hide(); // Hide current choices
+            
+            if (choice.onDeath) {
+                $(".chapter1").hide();
+                $("#death-screen").show();
+            }
+            
+            await typeText(Array.isArray(choice.response) ? choice.response : [choice.response]); // Type response fully
+
+            if (choice.nextChoices) {
+                console.log("Displaying next choices:", choice.nextChoices); // Debugging log
+                showChoices(choice.nextChoices, callback); // Correctly show next choices
+            } else if (callback) {
+                callback(); // Proceed if no more choices
+            }
         });
-        $('#choices-container').append(button);
+
+        $("#choices-container").append(button);
     });
 }
 
@@ -277,7 +222,6 @@ let playerState = {
 }
 
 //let playerEvents = {} ADD AS THE STORY PROGRESSES
-
 // ========================== //
 //        GAME SCENES         // git add . git push
 // ========================== //
@@ -287,33 +231,33 @@ let storyEpilogue = [
     "You've always had a vague life.",
     "Honestly, you can't even remember what you did yesterday.",
     "You should probably get that checked out...",
-    "Anyway, you're standing smack dab in the middle of the entrance--therefore making you the biggest inconvenience (and weirdo) ever.",
+    "Anyway, you're standing in the middle of the entrance--therefore making you the biggest inconvenience (and weirdo) ever.",
     "What do you do? (Hint: this is your first big decision. Make it count)"
 ];
 
 
 let storyChoices = [
     {
-        text: "Continue standing in everyone's way", 
-        response: "You've got to be kidding me.", 
+        text: "*stands there*", 
+        response: [
+            "You've got to be kidding me.",
+            "*Sigh*",
+            "You stand there, inconveniencing everyone.",
+            "After some soft shoulder brushes, they realize you aren't moving.",
+            "It starts with a some shouldering, then elbow jabs.",
+            "You find yourself face down on the floor.",
+            "Nobody seems to care though as they continue forward, trampling you in the process.",
+            "Congratulations.",
+            "You died."
+        ],
         effect: () => playerState.intelligence -= 1,
-        nextChoices: [
-            {
-                text: "*stands there*", 
-                response: [
-                    "*Sigh*, you continue to stand there. Right in the entrance.",
-                    "Students brush past you, some with the forced politeness of someone trying very hard not to shove you, others opting instead for a direct approach: bumping into you and moving on without a word."
-                ],
-                nextChoices: [
-                    { text: "*sneeze*", response: "You sneeze. A small event in the grand scheme of things, but perhaps significant in ways you cannot yet comprehend." },
-                    { text: "Walk into the hallway", response: "Finally, you make your way inside. About time." }
-                ]
-            }
-        ]
+        onDeath: true
     },
     {
         text: "No", 
-        response: ["No?", "What. What do you mean no?", "You can't just say 'no'."],
+        response: [
+            "No?", "What. What do you mean no?", "You can't just say 'no'."
+        ],
         nextChoices: [
             { 
                 text: "No", 
@@ -325,12 +269,12 @@ let storyChoices = [
                     "Thank you.", 
                     "It seems like you've come to your senses.", 
                     "Well then, you enter the hallway and take in the sights of your new educational facility."
-                ] 
-            }
-        ]
+                ],
+            },
+        ],
     },
     {
         text: "Walk into the hallway", 
-        response: ["You take a deep breath and step inside. The journey begins."]
-    }
-];
+        response: ["You take a deep breath and step inside. The journey begins."],
+    },
+]
