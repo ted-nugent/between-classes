@@ -28,6 +28,12 @@ $("#go-back").click(function(){
     $('.customization-page').show();
 });
 
+$("#restart-button").click(function (){
+    $(".chapter1").hide();
+    $("#death-screen").hide();
+    $(".title-screen").show();
+    $("body").css("background", "linear-gradient(to bottom, #d5e1f8, #e5f1ff)");
+});
 // ========================== //
 //    CHARACTER CUSTOMIZATION //
 // ========================== //
