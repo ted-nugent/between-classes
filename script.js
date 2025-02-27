@@ -29,12 +29,12 @@ $("#go-back").click(function(){
 });
 
 //death screen
-$("#restart-button").click(function (){
-    $(".chapter1").hide();
-    $("#death-screen").hide();
-    $(".title-screen").show();
-    $("body").css("background", "linear-gradient(to bottom, #d5e1f8, #e5f1ff)");
-});
+//$("#restart-button").click(function (){
+//    $(".chapter1").hide();
+//    $("#death-screen").hide();
+//    $(".title-screen").show();
+//  $("body").css("background", "linear-gradient(to bottom, #d5e1f8, #e5f1ff)");
+//});
 // ========================== //
 //    CHARACTER CUSTOMIZATION //
 // ========================== //
@@ -120,38 +120,44 @@ $("#confirm").click(async function () {
 // ========================== //
 function deathScreen(deathCause) {
     return new Promise(resolve => {
-        // Hide all elements except death screen and typewriter test
+        // Hide all elements except death screen and typewriter-test
         $("body *").not("#death-screen, #typewriter-test").hide();
         $("body").css("background", "black");
 
-        // Make sure death screen and typewriter container are visible
+        // Show the death screen explicitly
         $("#death-screen").show().empty();
         $("#typewriter-test").show().empty();
 
-    
-        // Step 2: Wait for first key press
-        waitForKeyPress().then(() => {
-            console.log("First key press detected. Showing death cause... (death message)");
+        console.log("Death screen triggered. Cause:", deathCause); // Debugging log
 
-            // Step 3: Get the specific death message
+        // Step 1: Wait for first key press
+        waitForKeyPress().then(() => {
+            console.log("First key press detected. Showing death cause...");
+
+            // Step 2: Get and display death message
             let deathMessage = getDeathMessage(deathCause);
-            
-            // Step 4: Type the cause of death
+            console.log("Death message:", deathMessage); // Debugging log
+            $("#typewriter-test").show().empty();
+            console.log($("#typewriter-test").is(":visible"));
             typeText([deathMessage]).then(() => {
+                console.log("Passing to typeText:", [deathMessage]);
 
                 waitForKeyPress().then(() => {
                     console.log("Second key press detected. Returning to title screen.");
 
-                    $("#death-screen").hide(); // Hide death screen
-                    $(".title-screen").show();
-                    $("body").css("background", "linear-gradient(to bottom, #d5e1f8, #e5f1ff)");
-                    resolve(); // Continue the game
+                    // Hide death screen and return to title
+                    $("#death-screen").hide();
+                    clearScreen();
+                    $("body").css("background", "linear-gradient(to bottom, #d5e1f8, #e5f1ff)"); //this isnt showing
+                    $(".title-screen", ".gametitle", ".button-container", ".credits").each(function() {
+                        show();
+                    });
+                    resolve();
                 });
             });
         });
     });
 }
-
 // ========================== //
 //        DEATHMESSAGES       //
 // ========================== //
@@ -211,7 +217,7 @@ function typeSentence(sentence) {
                 clearInterval(interval);
                 resolve(); // Resolve the promise when done typing
             }
-        }, 35);
+        }, 15);
     });
 }
 
