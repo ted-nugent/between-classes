@@ -28,6 +28,7 @@ $("#go-back").click(function(){
     $('.customization-page').show();
 });
 
+//death screen
 $("#restart-button").click(function (){
     $(".chapter1").hide();
     $("#death-screen").hide();
@@ -115,15 +116,58 @@ $("#confirm").click(async function () {
 
 
 // ========================== //
-//      WAIT FOR KEYPRESS     //
+//      Death Screen     //
 // ========================== //
-//function waitForKeyPress() {
-  //  return new Promise(resolve => {
-    //    function keyHandler(event) {$("#confirm").click(async function() {
-  //  typeText(storyEpilogue, async function() {
-  //      showChoices(storyChoices);
-    //});
-//});
+function deathScreen(deathCause) {
+    return new Promise(resolve => {
+        // Hide all elements except death screen and typewriter test
+        $("body *").not("#death-screen, #typewriter-test").hide();
+        $("body").css("background", "black");
+
+        // Make sure death screen and typewriter container are visible
+        $("#death-screen").show().empty();
+        $("#typewriter-test").show().empty();
+
+    
+        // Step 2: Wait for first key press
+        waitForKeyPress().then(() => {
+            console.log("First key press detected. Showing death cause... (death message)");
+
+            // Step 3: Get the specific death message
+            let deathMessage = getDeathMessage(deathCause);
+            
+            // Step 4: Type the cause of death
+            typeText([deathMessage]).then(() => {
+
+                waitForKeyPress().then(() => {
+                    console.log("Second key press detected. Returning to title screen.");
+
+                    $("#death-screen").hide(); // Hide death screen
+                    $(".title-screen").show();
+                    $("body").css("background", "linear-gradient(to bottom, #d5e1f8, #e5f1ff)");
+                    resolve(); // Continue the game
+                });
+            });
+        });
+    });
+}
+
+// ========================== //
+//        DEATHMESSAGES       //
+// ========================== //
+
+function getDeathMessage(cause) {
+    const deathMessages = {
+        "trampled": "You were trampled to death. Maybe try moving?",
+        "poisoned": "You drank the poison. The poison for Kuzco, the poison chosen especially to kill Kuzco, Kuzco's poison. That poison.",
+        "drowned": "Maybe swimming lessons weren't such a bad idea.",
+        "scorched": "You burned to death. Fire is hot, who knew?",
+    };
+    return deathMessages[cause] || "You died."
+}
+
+
+
 // ========================== //
 //      TYPEWRITER EFFECT     //
 // ========================== //
@@ -181,34 +225,36 @@ function clearScreen() {
 // ========================== //
 
 function showChoices(choices, callback = null) {
-    $("#choices-container").empty().show(); // Make sure choices are visible
+    $("#choices-container").empty().show(); // Ensure choices container is visible
 
     choices.forEach((choice) => {
         let button = $("<button>")
             .text(choice.text)
             .addClass("choice-button");
 
+            
         button.click(async () => {
-            $("#choices-container").hide(); // Hide current choices
-            
-            if (choice.onDeath) {
-                $(".chapter1").hide();
-                $("#death-screen").show();
-            }
-            
+            $("#choices-container").hide(); // Hide choices after selection
             await typeText(Array.isArray(choice.response) ? choice.response : [choice.response]); // Type response fully
 
+            // If this choice leads to death, trigger the death screen
+            if (choice.triggersDeath) {
+                await deathScreen(choice.deathCause);
+                return;
+            }
+
+            // If there are more choices after this, show them
             if (choice.nextChoices) {
-                console.log("Displaying next choices:", choice.nextChoices); // Debugging log
-                showChoices(choice.nextChoices, callback); // Correctly show next choices
+                showChoices(choice.nextChoices, callback);
             } else if (callback) {
-                callback(); // Proceed if no more choices
+                callback(); // Call the callback if no more choices exist
             }
         });
 
         $("#choices-container").append(button);
     });
 }
+
 
 // ========================== //
 //       PLAYER OBJECTS       //
@@ -257,7 +303,8 @@ let storyChoices = [
             "You died."
         ],
         effect: () => playerState.intelligence -= 1,
-        onDeath: true
+        triggersDeath: true,
+        deathCause: "trampled"
     },
     {
         text: "No", 
