@@ -98,7 +98,7 @@ $("#confirm").click(async function () {
     $("body").css("background", "black");
 
     clearScreen(); 
-    await typeText(storyEpilogue);  // Wait for the text to fully display first
+    await typeSentence(storyEpilogue, "#typewriter-test");  // Wait for the text to fully display first
 
     await waitForKeyPress();  // Wait for player input before showing choices
     showChoices(storyChoices, async function () {
@@ -120,15 +120,21 @@ $("#confirm").click(async function () {
 // ========================== //
 function deathScreen(deathCause) {
     return new Promise(resolve => {
-        // Hide all elements except death screen and typewriter-test
-        $("body *").not("#death-screen, #typewriter-test").hide();
+        // Hide everything except death-related elements
+        $("body *").not("#death-screen, #typewriter-test, #death-text").hide();
+
+        // Debugging: Log what is being hidden
+        $("body *").not("#death-screen, #typewriter-test, #death-text").each(function() {
+            console.log("Hiding:", this);
+        });
+
         $("body").css("background", "black");
 
         // Show the death screen explicitly
-        $("#death-screen").show().empty();
-        $("#typewriter-test").show().empty();
+        $("#death-screen").show();
+        $("#death-text").show(); // Ensure death message area is visible
 
-        console.log("Death screen triggered. Cause:", deathCause); // Debugging log
+        console.log("Death screen triggered. Cause:", deathCause);
 
         // Step 1: Wait for first key press
         waitForKeyPress().then(() => {
@@ -136,28 +142,33 @@ function deathScreen(deathCause) {
 
             // Step 2: Get and display death message
             let deathMessage = getDeathMessage(deathCause);
-            console.log("Death message:", deathMessage); // Debugging log
-            $("#typewriter-test").show().empty();
-            console.log($("#typewriter-test").is(":visible"));
-            typeText([deathMessage]).then(() => {
-                console.log("Passing to typeText:", [deathMessage]);
+            console.log("Death message:", deathMessage);
+
+            $("#death-text").show().css({ "display": "block", "visibility": "visible", "opacity": "1" }).empty();
+            console.log("#death-text visible?", $("#death-text").is(":visible"));
+
+            typeSentence(deathMessage, "#death-text").then(() => {
+                console.log("Passing to typeText:", deathMessage);
 
                 waitForKeyPress().then(() => {
                     console.log("Second key press detected. Returning to title screen.");
 
                     // Hide death screen and return to title
                     $("#death-screen").hide();
-                    clearScreen();
-                    $("body").css("background", "linear-gradient(to bottom, #d5e1f8, #e5f1ff)"); //this isnt showing
-                    $(".title-screen", ".gametitle", ".button-container", ".credits").each(function() {
-                        show();
+                    $("body").css("background", "linear-gradient(to bottom, #d5e1f8, #e5f1ff)"); 
+
+                    // Fix: Correctly show title elements
+                    $("#title-screen, .gametitle, .button-container, .credits").each(function() {
+                        $(this).show();
                     });
+
                     resolve();
                 });
             });
         });
     });
 }
+
 // ========================== //
 //        DEATHMESSAGES       //
 // ========================== //
@@ -169,7 +180,7 @@ function getDeathMessage(cause) {
         "drowned": "Maybe swimming lessons weren't such a bad idea.",
         "scorched": "You burned to death. Fire is hot, who knew?",
     };
-    return deathMessages[cause] || "You died."
+    return deathMessages[cause] || "Try again."
 }
 
 
@@ -206,23 +217,38 @@ async function typeText(textArray) {
 }
 
 // Helper function to type one sentence letter by letter
-function typeSentence(sentence) {
-    return new Promise((resolve) => {
-        let i = 0;
-        let interval = setInterval(() => {
-            if (i < sentence.length) {
-                $("#typewriter-test").append(sentence.charAt(i));
-                i++;
-            } else {
-                clearInterval(interval);
-                resolve(); // Resolve the promise when done typing
-            }
-        }, 15);
-    });
+async function typeSentence(sentences, targetId = "#typewriter-test") {
+    if (!Array.isArray(sentences)) {
+        sentences = [sentences];  // Convert single sentence to array
+    }
+
+    for (let i = 0; i < sentences.length; i++) {
+        $(targetId).empty();  // Clear previous text
+
+        await new Promise((resolve) => {
+            let sentence = sentences[i];
+            let j = 0;
+            let interval = setInterval(() => {
+                if (typeof sentence !== 'string') {
+                    sentence = String(sentence);
+                }
+                if (j < sentence.length) {
+                    $(targetId).append(sentence.charAt(j));
+                    j++;
+                } else {
+                    clearInterval(interval);
+                    console.log("Finished typing:", sentence);
+                    resolve();  // Move to next sentence
+                }
+            }, 15);
+        });
+
+        await waitForKeyPress();  // Wait for player to continue
+    }
 }
 
-function clearScreen() {
-    $('#typewriter-test').empty();
+function clearScreen(target) {
+    $(target).empty();
     $('#choices-container').empty().hide();
 }
 
@@ -241,7 +267,7 @@ function showChoices(choices, callback = null) {
             
         button.click(async () => {
             $("#choices-container").hide(); // Hide choices after selection
-            await typeText(Array.isArray(choice.response) ? choice.response : [choice.response]); // Type response fully
+            await typeSentence(Array.isArray(choice.response) ? choice.response : [choice.response]); // Type response fully
 
             // If this choice leads to death, trigger the death screen
             if (choice.triggersDeath) {
