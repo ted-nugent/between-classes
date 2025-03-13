@@ -16,7 +16,6 @@ body {
 
 .title-screen {
     text-align: center;
-
 }
 
 .game-title {
@@ -105,6 +104,17 @@ body {
     margin-bottom: 1rem;
     float: left;
 }
+
+#character-img {
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+    max-height: 700px;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1/2;
+}
+
 
 .navigation-buttons {
     display: flex;

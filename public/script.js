@@ -6,6 +6,7 @@
 $('#start-button').click(function() { 
     $('.title-screen').hide();
     $('.customization-page').show().css('display', 'flex');
+    $('#character-img').show();
 });
 
 $('#load-button').click(function() {
@@ -39,23 +40,47 @@ $("#go-back").click(function(){
 //    CHARACTER CUSTOMIZATION //
 // ========================== //
 
-const categories = ["Body Type", "Skin Tone", "Hair", "Tops", "Bottoms", "Accessories"];
+const categories = ["Body", "Shoes", "Bottoms", "Tops", "Hair", "Accessories"];
 const images = {
-    "Body Type": ["images/bodytype1.png", "images/bodytype2.png"],
-    "Skin Tone": ["images/skintone1.png", "images/skintone2.png"],
-    "Hair": ["images/hair1.png", "images/hair2.png"],
-    "Tops": ["images/top1.png", "images/top2.png"],
-    "Bottoms": ["images/bottom1.png", "images/bottom2.png"],
-    "Accessories": ["images/accessory1.png", "images/accessory2.png"]
+    "Body": ["./images/Body_1.jpeg", "./images/Body_2.jpeg", "./images/Body_3.jpeg", "./images/Body_4.jpeg", "./images/Body_5.jpeg"],
+    "Shoes": ["./images/BLANK.jpeg", "./images/Shoes_1.jpeg", "./images/Shoes_2.jpeg", "./images/Shoes_3.jpeg"],
+    "Bottoms": ["./images/BLANK.jpeg", "./images/Bottom_1.jpeg", "./images/Bottom_2.jpeg", "./images/Bottom_3.jpeg", "./images/Bottom_4.jpeg"],
+    "Tops": ["./images/BLANK.jpeg", "./images/Top_1.jpeg", "./images/Top_2.jpeg", "./images/Top_3.jpeg", "./images/Top_4.jpeg"],
+    "Hair": ["./images/BLANK.jpeg", "./images/Hair_1.jpeg", "./images/Hair_2.jpeg", "./images/Hair_3.jpeg", "./images/Hair_4.jpeg", "./images/Hair_5.jpeg", "./images/Hair_6.jpeg"]
 };
 
 let currentCategoryIndex = 0;
 let currentImageIndex = 0;
 
-function updateCharacterDisplay() {
-    $("#character-display").text(`Customizing: ${categories[currentCategoryIndex]}`);
-    $("#character-img").attr("src", images[categories[currentCategoryIndex]][currentImageIndex]);
+let imgSrc = images[categories[currentCategoryIndex]][currentImageIndex];
+console.log("Current Image Source:", imgSrc); // Debugging
+
+if (!imgSrc) {
+    console.error("Image not found for category:", categories[currentCategoryIndex]);
+} else {
+    $("#character-img").attr("src", imgSrc);
 }
+
+
+//function updateCharacterDisplay() {
+//    $("#character-display").text(`Customizing: ${categories[currentCategoryIndex]}`);
+//    $("#character-img").attr("src", images[categories[currentCategoryIndex]][currentImageIndex]);
+//}
+
+function updateCharacterDisplay() {
+    let imgSrc = images[categories[currentCategoryIndex]][currentImageIndex];
+
+    console.log("Updating Image Source:", imgSrc); // Debugging
+
+    if (!imgSrc) {
+        console.error("Image not found for category:", categories[currentCategoryIndex]);
+    } else {
+        $("#character-img").attr("src", imgSrc);
+    }
+
+    $("#character-display").text(`Customizing: ${categories[currentCategoryIndex]}`);
+}
+
 
 $("#prev-button").click(function() {
     currentImageIndex = (currentImageIndex > 0) ? currentImageIndex - 1 : images[categories[currentCategoryIndex]].length - 1;
