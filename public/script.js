@@ -6,7 +6,7 @@
 $('#start-button').click(function() { 
     $('.title-screen').hide();
     $('.customization-page').show().css('display', 'flex');
-    $('#character-img').show();
+    $('#character-img').show().css('display', 'block');
 });
 
 $('#load-button').click(function() {
@@ -40,9 +40,9 @@ $("#go-back").click(function(){
 //    CHARACTER CUSTOMIZATION //
 // ========================== //
 
-const categories = ["Body", "Shoes", "Bottoms", "Tops", "Hair", "Accessories"];
+const categories = ["Body", "Shoes", "Bottoms", "Tops", "Hair"];
 const images = {
-    "Body": ["./images/Body_1.jpeg", "./images/Body_2.jpeg", "./images/Body_3.jpeg", "./images/Body_4.jpeg", "./images/Body_5.jpeg"],
+    "Body": ["/public/images/Body_1.jpeg", "/public/images/Body_2.jpeg", "/public/images/Body_3.jpeg", "/public/images/Body_4.jpeg", "/public/images/Body_5.jpeg"],
     "Shoes": ["./images/BLANK.jpeg", "./images/Shoes_1.jpeg", "./images/Shoes_2.jpeg", "./images/Shoes_3.jpeg"],
     "Bottoms": ["./images/BLANK.jpeg", "./images/Bottom_1.jpeg", "./images/Bottom_2.jpeg", "./images/Bottom_3.jpeg", "./images/Bottom_4.jpeg"],
     "Tops": ["./images/BLANK.jpeg", "./images/Top_1.jpeg", "./images/Top_2.jpeg", "./images/Top_3.jpeg", "./images/Top_4.jpeg"],
@@ -52,22 +52,15 @@ const images = {
 let currentCategoryIndex = 0;
 let currentImageIndex = 0;
 
-let imgSrc = images[categories[currentCategoryIndex]][currentImageIndex];
-console.log("Current Image Source:", imgSrc); // Debugging
+let finalCharacterSelection = {};
 
-if (!imgSrc) {
-    console.error("Image not found for category:", categories[currentCategoryIndex]);
-} else {
-    $("#character-img").attr("src", imgSrc);
-}
-
-
-//function updateCharacterDisplay() {
-//    $("#character-display").text(`Customizing: ${categories[currentCategoryIndex]}`);
-//    $("#character-img").attr("src", images[categories[currentCategoryIndex]][currentImageIndex]);
-//}
+categories.forEach(category => {
+    finalCharacterSelection[category] = images[category][0];
+});
 
 function updateCharacterDisplay() {
+    let category = categories[currentCattegoryIndex];
+
     let imgSrc = images[categories[currentCategoryIndex]][currentImageIndex];
 
     console.log("Updating Image Source:", imgSrc); // Debugging
@@ -78,7 +71,7 @@ function updateCharacterDisplay() {
         $("#character-img").attr("src", imgSrc);
     }
 
-    $("#character-display").text(`Customizing: ${categories[currentCategoryIndex]}`);
+    $("#character-caption").text(`Customizing: ${categories[currentCategoryIndex]}`);
 }
 
 
