@@ -54,14 +54,11 @@ let currentImageIndex = 0;
 
 let finalCharacterSelection = {};
 
-categories.forEach(category => {
-    finalCharacterSelection[category] = images[category][0];
-});
-
 function updateCharacterDisplay() {
-    let category = categories[currentCattegoryIndex];
+    let category = categories[currentCategoryIndex];
 
-    let imgSrc = images[categories[currentCategoryIndex]][currentImageIndex];
+    let imgSrc = images[categories[currentCategoryIndex]][currentImageIndex]; 
+
 
     console.log("Updating Image Source:", imgSrc); // Debugging
 
@@ -69,9 +66,10 @@ function updateCharacterDisplay() {
         console.error("Image not found for category:", categories[currentCategoryIndex]);
     } else {
         $("#character-img").attr("src", imgSrc);
+
     }
 
-    $("#character-caption").text(`Customizing: ${categories[currentCategoryIndex]}`);
+    $("#character-caption").text(`Customizing: ${category}`);
 }
 
 
