@@ -42,7 +42,7 @@ $("#go-back").click(function(){
 
 const categories = ["Body", "Shoes", "Bottoms", "Tops", "Hair"];
 const images = {
-    "Body": ["/public/images/Body_1.jpeg", "/public/images/Body_2.jpeg", "/public/images/Body_3.jpeg", "/public/images/Body_4.jpeg", "/public/images/Body_5.jpeg"],
+    "Body": ["./images/Body_1.jpeg", "./images/Body_2.jpeg", "./images/Body_3.jpeg", "./images/Body_4.jpeg", "./images/Body_5.jpeg"],
     "Shoes": ["./images/BLANK.jpeg", "./images/Shoes_1.jpeg", "./images/Shoes_2.jpeg", "./images/Shoes_3.jpeg"],
     "Bottoms": ["./images/BLANK.jpeg", "./images/Bottom_1.jpeg", "./images/Bottom_2.jpeg", "./images/Bottom_3.jpeg", "./images/Bottom_4.jpeg"],
     "Tops": ["./images/BLANK.jpeg", "./images/Top_1.jpeg", "./images/Top_2.jpeg", "./images/Top_3.jpeg", "./images/Top_4.jpeg"],
@@ -52,7 +52,13 @@ const images = {
 let currentCategoryIndex = 0;
 let currentImageIndex = 0;
 
-let finalCharacterSelection = {};
+let finalCharacterSelection = {
+    "Body":"",
+    "Shoes":"",
+    "Bottoms": "",
+    "Tops": "",
+    "Hair": "",
+};
 
 function updateCharacterDisplay() {
     let category = categories[currentCategoryIndex];
@@ -66,7 +72,6 @@ function updateCharacterDisplay() {
         console.error("Image not found for category:", categories[currentCategoryIndex]);
     } else {
         $("#character-img").attr("src", imgSrc);
-
     }
 
     $("#character-caption").text(`Customizing: ${category}`);
@@ -88,6 +93,7 @@ $("#confirm-button").click(function() {
         currentCategoryIndex++;
         currentImageIndex = 0;
         updateCharacterDisplay();
+        //update finalCharacterSelection as well. 
     } else {
         $('.customization-page').hide();
         $('.customization-confirm').show();

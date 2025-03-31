@@ -20,7 +20,16 @@
       enable = true;
       previews = {
         web = {
-          command = ["python3" "-m" "http.server" "$PORT" "--bind" "0.0.0.0"];
+          command = [
+            "python3"
+            "-m"
+            "http.server"
+            "$PORT"
+            "--bind"
+            "0.0.0.0"
+            "--directory"
+            "public"
+          ];
           manager = "web";
         };
       };
@@ -32,12 +41,13 @@
         # Example: install JS dependencies from NPM
         # npm-install = "npm install";
         # Open editors for the following files by default, if they exist:
-        default.openFiles = [ "style.css" "main.js" "index.html" ];
+        default.openFiles = [ "public/style.css" "public/main.js" "public/index.html" ];
       };
       # Runs when the workspace is (re)started
       onStart = {
         # Example: start a background task to watch and re-build backend code
         # watch-backend = "npm run watch-backend";
+        default.openFiles = [ "public/style.css" "public/main.js" "public/index.html" ];
       };
     };
   };
