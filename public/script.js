@@ -60,10 +60,27 @@ let finalCharacterSelection = {
     "Hair": "",
 };
 
+// Assuming `categories` contains ["Body", "Shoes", "Bottoms", "Tops", "Hair"]
+function initializeCharacterSelection() {
+    categories.forEach(category => {
+        if (images[category] && images[category].length > 0) {
+            finalCharacterSelection[category] = images[category][0]; // Set default to the first image
+        } else {
+            console.warn(`No images found for category: ${category}`);
+        }
+    });
+
+    console.log("Initialized Character Selection:", finalCharacterSelection);
+}
+
+// Call this function when the page loads
+initializeCharacterSelection();
+
+
 function updateCharacterDisplay() {
     let category = categories[currentCategoryIndex];
 
-    let imgSrc = images[categories[currentCategoryIndex]][currentImageIndex]; 
+    let imgSrc = categories[currentCategoryIndex];//images[categories[currentCategoryIndex]][currentImageIndex]; 
 
 
     console.log("Updating Image Source:", imgSrc); // Debugging
@@ -77,6 +94,13 @@ function updateCharacterDisplay() {
     $("#character-caption").text(`Customizing: ${category}`);
 }
 
+function setSelection(category, imagePath){
+    if (finalCharacterSelection.hasOwnProperty(category)) { 
+        finalCharacterSelection[category] = imagePath; // Overwrite previous selection
+    } else {
+        console.error(`Category "${category}" does not exist.`);
+    }
+}
 
 $("#prev-button").click(function() {
     currentImageIndex = (currentImageIndex > 0) ? currentImageIndex - 1 : images[categories[currentCategoryIndex]].length - 1;
@@ -90,6 +114,7 @@ $("#next-button").click(function() {
 
 $("#confirm-button").click(function() {
     if (currentCategoryIndex < categories.length - 1) {
+        setSelection(categories[currentCategoryIndex], currentImageIndex); //new -- setSelection first then reset using lines of code below
         currentCategoryIndex++;
         currentImageIndex = 0;
         updateCharacterDisplay();
